@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Calculator</title>
+</head>
+<body>
+    <h1>Options Calculator</h1>
+    <div id="plotly-chart"></div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        var data = [
+            {
+                x: [1, 2, 3, 4, 5],
+                y: [1, 2, 6, 8, 16],
+                type: 'scatter'
+            }
+        ];
+
+        Plotly.newPlot('plotly-chart', data);
+    </script>
+</body>
+</html>
