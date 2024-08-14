@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Option Pricing Calculator</h1>
+    <form id="option-form">
+        <label for="S">Stock Price:</label>
+        <input type="number" id="S" name="S" step="0.01" required><br>
+        <label for="K">Strike Price:</label>
+        <input type="number" id="K" name="K" step="0.01" required><br>
+        <label for="T">Time to Expiration (in years):</label>
+        <input type="number" id="T" name="T" step="0.0001" required><br>
+        <label for="r">Risk-Free Rate (%):</label>
+        <input type="number" id="r" name="r" step="0.01" required><br>
+        <label for="K">Volatility (%):</label>
+        <input type="number" id="sigma" name="sigma" step="0.01" required><br>
+        <label for ="option_type">Option Type:</label>
+        <select id="option_type" name="option_type" required>
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+        </select><br>
+        <button type="submit">Calculate Price</button>
+    </form>
+
+
+
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Call</th>
+                <th>Put</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="option-premium-label">Option Premium</td>
+                <td id="option-premium-call">0</td>
+                <td id="option-premium-put">0</td>
+            </tr>
+            <tr>
+                <td id="delta-label">Delta</td>
+                <td id="delta-call">0</td>
+                <td id="delta-put">0</td>
+            </tr>
+            <tr>
+                <td id="gamma-label">Gamma</td>
+                <td id="gamma">0</td>
+                <td id="gamma">0</td>
+            </tr>
+            <tr>
+                <td id="vega-label">Vega</td>
+                <td id="vega">0</td>
+                <td id="vega">0</td>
+            </tr>
+            <tr>
+                <td id="theta-label">Theta</td>
+                <td id="theta-call" class="value">0</td>
+                <td id="theta-put" class="value">0</td>
+            </tr>
+            <tr>
+                <td id="rho-label">Rho</td>
+                <td id="rho-call" class="value">0</td>
+                <td id="rho-put" class="value">0</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div id="result"></div>
+    <div id="payoff-chart" style = "width: 600px; height: 400px;"></div>
+    <script src="/static/js/main.js"></script>
+
+</body>
+</html>
