@@ -1,5 +1,7 @@
 
-document.getElementById('option-form').addEventListener('submit', function(event) {
+//Parses form data then retrieves bsm values from python backend
+if (document.getElementById('option-form')) {
+    document.getElementById('option-form').addEventListener('submit', function(event) {
     event.preventDefault();
     const data = {
         S: parseFloat(document.getElementById('S').value),
@@ -10,21 +12,20 @@ document.getElementById('option-form').addEventListener('submit', function(event
         option_type: document.getElementById('option_type').value
     };
 
-    axios.post('/api/option-price', data)
+    axios.post('/api/option-price-calculator', data)
         .then(response => {
             const {call, put, greeks} = response.data;
-            console.log(greeks.delta)
             const elements = {
                 'option-premium-call': `$${call.toFixed(2)}`,
                 'option-premium-put': `$${put.toFixed(2)}`,
-                'delta-call': greeks.delta_call.toFixed(2),
-                'delta-put': greeks.delta_put.toFixed(2),
-                'gamma': greeks.gamma.toFixed(2),
-                'vega': greeks.vega.toFixed(2),
-                'theta-call': greeks.theta_call.toFixed(2),
-                'theta-put': greeks.theta_put.toFixed(2),
-                // 'rho': greeks.rho.toFixed(2)
-            
+                'delta-call': greeks.delta_call.toFixed(4),
+                'delta-put': greeks.delta_put.toFixed(4),
+                'gamma': greeks.gamma.toFixed(4),
+                'vega': greeks.vega.toFixed(4),
+                'theta-call': greeks.theta_call.toFixed(4),
+                'theta-put': greeks.theta_put.toFixed(4),
+                'rho-call': greeks.rho_call.toFixed(4),
+                'rho-put': greeks.rho_put.toFixed(4)
             };
             
             Object.keys(elements).forEach(id => {
@@ -39,28 +40,11 @@ document.getElementById('option-form').addEventListener('submit', function(event
             document.getElementById('option-premium-put').innerText = 'Error: ' + error.response.data.error;
         }); 
 });
-
-
-function generatePayoffData(S, K, optionPrice, optionType) {
-    const step = 1;               // Incremental step size for the stock price
-    const maxPrice = S * 3;       // Maximum stock price to display on the chart
-    const data = [];
-
-    for (let price = 0; price <= maxPrice; price += step) {
-        let payoff;
-        if (optionType === 'call') {
-            // Payoff calculation for a call option
-            payoff = Math.max(0, price - K) - optionPrice;
-        } else if (optionType === 'put') {
-            // Payoff calculation for a put option
-            payoff = Math.max(0, K - price) - optionPrice;
-        }
-        data.push({ x: price, y: payoff });
-    }
-    return data;
 }
 
-//function sumPayoffData()
+
+
+
 
 function plotPayoff(data) {
     const trace = {
@@ -78,3 +62,7 @@ function plotPayoff(data) {
 
     Plotly.newPlot('payoff-chart', [trace], layout);
 }
+
+
+
+

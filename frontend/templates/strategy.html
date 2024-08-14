@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Strategy</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h2>Options Details Table</h2>
+    
+    
+    
+    <table id="option-table">
+        <thead> 
+            <tr>
+                <th>Buy/Sell</th>
+                <th>Quantity</th>
+                <th>Put/Call</th>
+                <th>Underlying Price (K)</th>
+                <th>Strike Price (S)</th>
+                <th>Risk-free Rate (r)</th>
+                <th>Time to Expiration (T)</th>
+                <th>Volatility (σ)</th>
+                <th>Option Premium</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+            </tr>
+            <!-- Additional rows will be added here -->
+
+        <td>
+            <select class="form-value" id="row-2-option_action">
+                <option value="Buy">Buy</option>
+                <option value="Sell">Sell</option>
+            </select>
+        </td>
+        <td><input type="number" class="form-value" id="row-2-quantity" min="1" value="1"></td>
+        <td>
+            <select class="form-value" id="row-2-option_type">
+                <option value="Call">Call</option>
+                <option value="Put">Put</option>
+            </select>
+        </td>
+        <td><input type="number" class="form-value" id="row-2-S" step="0.01" placeholder=100></td>
+        <td><input type="number" class="form-value" id="row-2-K" step="0.01" placeholder=110></td>
+        <td><input type="number" class="form-value" id="row-2-r" step="0.01" placeholder=0.05></td>
+        <td><input type="number" class="form-value" id="row-2-T" step="0.01" placeholder=0.3></td>
+        <td><input type="number" class="form-value" id="row-2-sigma" step="0.01" placeholder=50></td>
+        <td><input type="number" class="form-value" id="row-2-premium" step="0.01" readonly=""></td>
+    
+        </tbody>
+    </table>
+    <button id="add-row-button">Add Row</button>
+    <form id="option-form">
+    <button type="submit" id="update-strategy-button">Update Strategy</button>
+    </form>
+
+    <h1>Option Payoff Plot</h1>
+    <svg id="chart"></svg>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/js/strategy.js"></script>  
+</body>
+</html>

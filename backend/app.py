@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from utils.black_scholes import Option
+from utils.black_scholes import Option, OptionArray
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
@@ -15,8 +15,8 @@ def calculator():
 def strategy():
     return render_template('strategy.html')
 
-
-@app.route('/api/option-price', methods=['POST'])
+##Calculator Part of Application
+@app.route('/api/option-price-calculator', methods=['POST'])
 def option_price():
     data = request.json
     S = data['S']
@@ -24,16 +24,36 @@ def option_price():
     T = data['T']
     r = data['r']
     sigma = data['sigma']
-    option_type = data['option_type']
-
-    if option_type == 'call':
-        price = Option(S, K, T, r, sigma).call()
-    elif option_type == 'put':
-        price = Option(S, K, T, r, sigma).put()
-
     option_values = Option(S, K, T, r, sigma).calc_all()
     print(option_values)
     return jsonify(option_values)
+    
+@app.route('/api/option-strategy-calculator', methods=['POST'])
+def option_strategy():
+    data = request.json
+    option_rows = [
+        Option(
+            option_type=opt["option_type"],
+            quantity=opt["quantity"],
+            option_action=opt["option_action"],
+            S=opt["S"],
+            K=opt["K"],
+            r=opt["r"],
+            T=opt["T"],
+            sigma=opt["sigma"]
+        )
+        for opt in data
+    ]
+    
+    option_array = OptionArray(option_rows)
+    payoffs = option_array.calculate_profit()
+    
+    
+    print(jsonify(payoffs))
+    return jsonify(payoffs)
+
+
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
