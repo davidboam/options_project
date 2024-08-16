@@ -29,6 +29,12 @@ class Option:
     def put(self):
         return  self.K*np.exp(-self.r * self.T) * N.cdf(-self.d2()) - self.S * N.cdf(-self.d1())
     
+    def calculate_premium(self):
+        if self.option_type == "Call":
+            return self.call()
+        elif self.option_type == "Put":
+            return self.put()
+
     def greeks(self):
         """DELTA - the rate of change of the option price w.r.t the price of the underlying asset."""
         delta_call = N.cdf(self.d1())
@@ -67,8 +73,6 @@ class Option:
         }
     
 
-
-
 class OptionArray:
     def __init__(self,options_array):
         self.options_array = options_array
@@ -80,6 +84,11 @@ class OptionArray:
         for opt in self.options_array:
             max_S = max(opt.S, max_S)
         return np.zeros(shape = (len(self.options_array),max_S*2))
+    
+    def calculate_premiums(self):
+        return {f"option_premium_{i+1}": opt.calculate_premium() for i, opt in enumerate(self.options_array)}
+        
+
     
     def calculate_profit(self):
         self.payoff_array = self.generate_zero_array()
@@ -102,7 +111,14 @@ class OptionArray:
 
         
         
-        payoff_dict = {f"payoff_strat_{i}" : payoff.tolist() for i,payoff in enumerate(self.payoff_array)}
+        payoff_dict = {f"payoff_strat_{i+1}" : payoff.tolist() for i,payoff in enumerate(self.payoff_array)}
         payoff_dict["total_profit"] = self.payoff_array.sum(axis=0).tolist()
         return payoff_dict
                     
+
+
+###Goals now
+### Make update dynamically
+### Make graph look better
+### Add stock hold position
+### Add text everywhere to explain what is going on -- probably require seperate explanation class takes option_type etc. or just make seperate web pages for each strategy.

@@ -1,7 +1,14 @@
 from flask import Flask, request, jsonify, render_template
+from flask_socketio import SocketIO, emit
 from utils.black_scholes import Option, OptionArray
 
+
+import time
+import random
+import threading
+
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+socketio = SocketIO(app)
 
 @app.route('/')
 def home():
@@ -14,6 +21,21 @@ def calculator():
 @app.route('/strategy')
 def strategy():
     return render_template('strategy.html')
+
+def update_price():
+    while True:
+        time.sleep(1)  # Update interval
+        socketio.emit('price', get_stock_price())  # Use socketio.emit
+
+@socketio.on('connect')
+def handle_connect():
+    # Start a background task to update the price regularly
+    socketio.start_background_task(target=update_price)
+    emit('price', get_stock_price())
+        
+
+def get_stock_price():
+    return random.uniform(100, 200)
 
 ##Calculator Part of Application
 @app.route('/api/option-price-calculator', methods=['POST'])
@@ -47,13 +69,18 @@ def option_strategy():
     
     option_array = OptionArray(option_rows)
     payoffs = option_array.calculate_profit()
+    print(f"Option array: {option_array}")
+
+    premiums = option_array.calculate_premiums()
+    print(f"Premiums: {premiums}")
+
     
     
-    print(jsonify(payoffs))
-    return jsonify(payoffs)
-
-
+    print("Return value:", jsonify(premiums,payoffs))
     
+    return jsonify(premiums,payoffs)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)

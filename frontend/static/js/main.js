@@ -1,20 +1,22 @@
-
-//Parses form data then retrieves bsm values from python backend
-if (document.getElementById('option-form')) {
-    document.getElementById('option-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const data = {
+// Function to get form data
+function getFormData() {
+    return {
         S: parseFloat(document.getElementById('S').value),
         K: parseFloat(document.getElementById('K').value),
         T: parseFloat(document.getElementById('T').value),
-        r: parseFloat(document.getElementById('r').value/100),
-        sigma: parseFloat(document.getElementById('sigma').value/100),
+        r: parseFloat(document.getElementById('r').value / 100),
+        sigma: parseFloat(document.getElementById('sigma').value / 100),
         option_type: document.getElementById('option_type').value
     };
+}
+
+// Function to update results
+function updateResults() {
+    const data = getFormData();
 
     axios.post('/api/option-price-calculator', data)
         .then(response => {
-            const {call, put, greeks} = response.data;
+            const { call, put, greeks } = response.data;
             const elements = {
                 'option-premium-call': `$${call.toFixed(2)}`,
                 'option-premium-put': `$${put.toFixed(2)}`,
@@ -27,42 +29,22 @@ if (document.getElementById('option-form')) {
                 'rho-call': greeks.rho_call.toFixed(4),
                 'rho-put': greeks.rho_put.toFixed(4)
             };
-            
+
             Object.keys(elements).forEach(id => {
                 document.getElementById(id).innerText = elements[id];
             });
 
-
-
         })
         .catch(error => {
-            document.getElementById('option-premium-call').innerText = 'Error: ' + error.response.data.error;
-            document.getElementById('option-premium-put').innerText = 'Error: ' + error.response.data.error;
-        }); 
-});
+            document.getElementById('option-premium-call').innerText = 'Error: ' + (error.response?.data?.error || 'Unknown error');
+            document.getElementById('option-premium-put').innerText = 'Error: ' + (error.response?.data?.error || 'Unknown error');
+        });
 }
 
+// Attach event listeners to form fields
+document.getElementById('option-form').addEventListener('input', updateResults);
 
-
-
-
-function plotPayoff(data) {
-    const trace = {
-        x: data.map(point => point.x),
-        y: data.map(point => point.y),
-        mode: 'points',
-        type: 'line'
-    };
-
-    const layout = {
-        title: 'Option Payoff Diagram',
-        xaxis: { title: 'Stock Price' },
-        yaxis: { title: 'Payoff' }
-    };
-
-    Plotly.newPlot('payoff-chart', [trace], layout);
-}
-
-
+// Initial call to set results on page load if needed
+updateResults();
 
 

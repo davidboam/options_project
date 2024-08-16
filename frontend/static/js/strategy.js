@@ -37,7 +37,7 @@ function addRow() {
     tbody.appendChild(newRow);
 }
 
-// addRow()
+addRow()
 document.getElementById('add-row-button').addEventListener('click', addRow);
 
 
@@ -80,40 +80,39 @@ function extractTableData() {
 
 
 
-document.getElementById('option-form').addEventListener('submit', function(event) {
-    event.preventDefault();
 
+function updateTable() {
     const data = extractTableData()
-    
+
     axios.post('/api/option-strategy-calculator', data)
         .then(response => {
-            const payoffData = response.data;
-            // const elements = {
-            //     'option-premium-call': `$${call.toFixed(2)}`,
-            //     'option-premium-put': `$${put.toFixed(2)}`,
-            //     'delta-call': greeks.delta_call.toFixed(4),
-            //     'delta-put': greeks.delta_put.toFixed(4),
-            //     'gamma': greeks.gamma.toFixed(4),
-            //     'vega': greeks.vega.toFixed(4),
-            //     'theta-call': greeks.theta_call.toFixed(4),
-            //     'theta-put': greeks.theta_put.toFixed(4),
-            //     'rho-call': greeks.rho_call.toFixed(4),
-            //     'rho-put': greeks.rho_put.toFixed(4)
-            // };
+            const [premiums, payoffs] = response.data;
             
-            // Object.keys(elements).forEach(id => {
-            //     document.getElementById(id).innerText = elements[id];
-            // });
+            document.querySelectorAll('#option-table tbody tr').forEach(row => {
+                // Get the unique row id for the premium
+                const premiumInput = row.querySelector('input[id$="-premium"]');
+                
+                if (premiumInput) {
+                    const rowId = premiumInput.id; // Get the ID of the input element
+                    const premiumKey = `option_premium_${rowId.split('-')[1]}`;
+                    
+                    // Update the premium value
+                    premiumInput.value = premiums[premiumKey] ? premiums[premiumKey].toFixed(2) : 'N/A';
+                }
+            });
+            
+            
 
             // Plot payoff data
-            console.log(payoffData)
-            plotData(payoffData);
+            
+            plotData(payoffs);
         })
         .catch(error => {
             console.error("Error fetching data:", error);
         });
-        
-});
+    }
+
+
 
 function plotData(data) {
     // Clear previous plots
@@ -121,7 +120,7 @@ function plotData(data) {
 
     // Extract strategies and their corresponding data
     const strategies = Object.keys(data);
-    console.log("Strategies:", strategies); // Debugging: log strategies
+
  
 
     // Define margins and dimensions
@@ -153,7 +152,6 @@ function plotData(data) {
 
     // Plot each strategy
     strategies.forEach((key, i) => {
-        console.log(`Plotting strategy ${key}:`, data[key]);
         svg.append("path")
             .datum(data[key])
             .attr("fill", "none")
@@ -176,33 +174,4 @@ function plotData(data) {
         .call(d3.axisLeft(yScale).ticks(10));
 }
 
-    
-
-//     axios.post('/api/option-price-calculator', data)
-//         .then(response => {
-//             const {call, put, greeks} = response.data;
-//             const elements = {
-//                 'option-premium-call': `$${call.toFixed(2)}`,
-//                 'option-premium-put': `$${put.toFixed(2)}`,
-//                 'delta-call': greeks.delta_call.toFixed(4),
-//                 'delta-put': greeks.delta_put.toFixed(4),
-//                 'gamma': greeks.gamma.toFixed(4),
-//                 'vega': greeks.vega.toFixed(4),
-//                 'theta-call': greeks.theta_call.toFixed(4),
-//                 'theta-put': greeks.theta_put.toFixed(4),
-//                 'rho-call': greeks.rho_call.toFixed(4),
-//                 'rho-put': greeks.rho_put.toFixed(4)
-//             };
-            
-//             Object.keys(elements).forEach(id => {
-//                 document.getElementById(id).innerText = elements[id];
-//             });
-
-
-
-//         })
-//         .catch(error => {
-//             document.getElementById('option-premium-call').innerText = 'Error: ' + error.response.data.error;
-//             document.getElementById('option-premium-put').innerText = 'Error: ' + error.response.data.error;
-//     }); 
-// });
+document.getElementById('option-table').addEventListener('input', updateTable);
