@@ -109,6 +109,13 @@ class OptionArray:
                 elif opt.option_action =="Sell":
                     self.payoff_array[i] = np.array([min(stock_price - opt.K,0) + opt.put() for stock_price in range(len(self.payoff_array[i]))]) 
 
+            elif opt.option_type == "Stock":
+                if opt.option_action == "Buy":
+                    self.payoff_array[i] = np.array([stock_price - opt.S for stock_price in range(len(self.payoff_array[i]))])
+                elif opt.option_action == "Sell":
+                    self.payoff_array[i] = np.array([opt.S - stock_price for stock_price in range(len(self.payoff_array[i]))])
+
+
         
         
         payoff_dict = {f"payoff_strat_{i+1}" : payoff.tolist() for i,payoff in enumerate(self.payoff_array)}
@@ -119,6 +126,6 @@ class OptionArray:
 
 ###Goals now
 ### Make update dynamically
-### Make graph look better
+### Make graph look better (use apex charts)
 ### Add stock hold position
 ### Add text everywhere to explain what is going on -- probably require seperate explanation class takes option_type etc. or just make seperate web pages for each strategy.

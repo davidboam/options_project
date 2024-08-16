@@ -23,6 +23,7 @@ function addRow() {
             <select class="form-value" id="${uniqueId}-option_type">
                 <option value="Call">Call</option>
                 <option value="Put">Put</option>
+                <option value="Stock">Stock</option>
             </select>
         </td>
         <td><input type="number" class="form-value" id="${uniqueId}-S" step="0.01" placeholder="Enter underlying price"></td>
