@@ -1,7 +1,7 @@
 let rowCount = 0;  // Counter to keep track of the number of rows
 let chart = null;
 
-function addRow(option_action="Buy", quantity="1", option_type="Call", K="", T="", sigma="", premium="") {
+function addRow(option_action="Sell", quantity="1", option_type="Put", K="", T="", sigma="", premium="") {
     rowCount++;  // Increment the counter for each new row
     const table = document.getElementById('option-table');
     const tbody = table.querySelector('tbody');
@@ -13,15 +13,15 @@ function addRow(option_action="Buy", quantity="1", option_type="Call", K="", T="
     
     const cells = `
         <td>
-            <select class="form-value" id="${uniqueId}-option_action" value="${option_action}" >
-                <option value="Buy">Buy</option>
+            <select class="form-value" id="${uniqueId}-option_action" value="${option_action}"  >
+                <option value="Buy" selected>Buy</option>
                 <option value="Sell">Sell</option>
             </select>
         </td>
-        <td><input type="number" class="form-value" id="${uniqueId}-quantity"  min="1" value="${quantity}"></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-quantity"  min="1" value="1"></td>
         <td>
             <select class="form-value" id="${uniqueId}-option_type" value="${option_type}">
-                <option value="Call">Call</option>
+                <option value="Call" selected>Call</option>
                 <option value="Put">Put</option>
                 <option value="Stock">Stock</option>
             </select>
@@ -36,11 +36,6 @@ function addRow(option_action="Buy", quantity="1", option_type="Call", K="", T="
     newRow.innerHTML = cells;
     tbody.appendChild(newRow);
 
-    const optionActionSelect = document.getElementById(`${uniqueId}-option_action`);
-    optionActionSelect.value = option_action;
-
-    const optionTypeSelect = document.getElementById(`${uniqueId}-option_type`);
-    optionTypeSelect.value = option_type;
 
     renumberRows()
 }
