@@ -31,4 +31,4 @@ The assumptions we use to derive the Black–Scholes–Merton differential equat
 
 This section of the project allows users to create options trading strategies in a sandbox mode before seeing a graphical output of the strategy.
 
-![Strategy](readme_files/strategy.png)
+![sandbox](readme_files/sandbox.png)
