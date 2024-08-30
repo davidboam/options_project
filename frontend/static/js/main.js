@@ -6,7 +6,6 @@ function getFormData() {
         T: parseFloat(document.getElementById('T').value),
         r: parseFloat(document.getElementById('r').value / 100),
         sigma: parseFloat(document.getElementById('sigma').value / 100),
-        option_type: document.getElementById('option_type').value
     };
 }
 

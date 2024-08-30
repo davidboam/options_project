@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
-from utils.black_scholes import Option, OptionArray
+from utils.black_scholes import Option, OptionArray, OptionStrategy
 
 
 import time
@@ -18,9 +18,15 @@ def home():
 def calculator():
     return render_template('calculator.html')
 
+@app.route('/sandbox')
+def sandbox():
+    return render_template('sandbox.html')
+
 @app.route('/strategy')
 def strategy():
     return render_template('strategy.html')
+
+
 
 def update_price():
     while True:
@@ -80,7 +86,16 @@ def option_strategy():
     
     return jsonify(premiums,payoffs)
 
+@app.route('/api/display-preset-strategy', methods=['POST'])
+def display_preset_strategy():
+    data = request.json
+    strategy_name = data.get("strategy")
 
+    option_strategy = OptionStrategy()
+
+    strategy_details = option_strategy.get_strategy(strategy_name)
+
+    return jsonify(strategy_details)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

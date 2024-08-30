@@ -96,12 +96,10 @@ class OptionArray:
         for i, opt in enumerate(self.options_array):
             if opt.option_type == "Call":
                 if opt.option_action == "Buy":
-                    print(opt)
-                    print(opt.call())
                     self.payoff_array[i] = np.array([max(stock_price - opt.K,0) - opt.call() for stock_price in range(len(self.payoff_array[i]))])
-                    print(opt.call())
                 elif opt.option_action =="Sell":
                     self.payoff_array[i] = np.array([min(opt.K - stock_price,0) + opt.call() for stock_price in range(len(self.payoff_array[i]))])
+                    print(opt.call())
 
             elif opt.option_type =="Put":
                 if opt.option_action == "Buy":
@@ -117,15 +115,39 @@ class OptionArray:
 
 
         
-        
+        self.payoff_array = np.round(self.payoff_array, 3)
         payoff_dict = {f"payoff_strat_{i+1}" : payoff.tolist() for i,payoff in enumerate(self.payoff_array)}
         payoff_dict["total_profit"] = self.payoff_array.sum(axis=0).tolist()
         return payoff_dict
                     
 
 
+class OptionStrategy():
+    def __init__ (self):
+        self.strategies = {
+        "Bull Spread" : self.bull_spread,
+        "Bear Spread" : "Fairies"
+    }
+        
+    def bull_spread(self):
+        option_1 = {"S":100, "K":110, "T":0.1, "r":5, "sigma":50, "option_type":"Call", "option_action":"Buy", "quantity":1}
+        option_2 = {"S":100, "K":120, "T":0.1, "r":5, "sigma":50, "option_type":"Call", "option_action":"Sell", "quantity":1}
+
+        description = """A bull spread is created by buying a European call option on a stock with a strike price S1 and selling a European call option on the same underlying stock with a higher strike price S2.
+        Both Options have the same expiration date."""
+
+        return {"description": description, "options": [option_1, option_2]}
+    
+
+
+    def get_strategy(self, strategy_name):
+        strategy_func = self.strategies.get(strategy_name)
+        if strategy_func:
+            return strategy_func()
+        return {"error" : "Strategy not found"}
+
+
 ###Goals now
-### Make update dynamically
-### Make graph look better (use apex charts)
-### Add stock hold position
+### 
+
 ### Add text everywhere to explain what is going on -- probably require seperate explanation class takes option_type etc. or just make seperate web pages for each strategy.

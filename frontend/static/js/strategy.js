@@ -1,7 +1,7 @@
 let rowCount = 0;  // Counter to keep track of the number of rows
+let chart = null;
 
-
-function addRow() {
+function addRow(option_action="Buy", quantity="1", option_type="Call", K="", T="", sigma="", premium="") {
     rowCount++;  // Increment the counter for each new row
     const table = document.getElementById('option-table');
     const tbody = table.querySelector('tbody');
@@ -13,38 +13,48 @@ function addRow() {
     
     const cells = `
         <td>
-            <select class="form-value" id="${uniqueId}-option_action" >
+            <select class="form-value" id="${uniqueId}-option_action" value="${option_action}" >
                 <option value="Buy">Buy</option>
                 <option value="Sell">Sell</option>
             </select>
         </td>
-        <td><input type="number" class="form-value" id="${uniqueId}-quantity"  min="1" value="1"></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-quantity"  min="1" value="${quantity}"></td>
         <td>
-            <select class="form-value" id="${uniqueId}-option_type">
+            <select class="form-value" id="${uniqueId}-option_type" value="${option_type}">
                 <option value="Call">Call</option>
                 <option value="Put">Put</option>
                 <option value="Stock">Stock</option>
             </select>
         </td>
-        <td><input type="number" class="form-value" id="${uniqueId}-S" step="0.01" placeholder="Enter underlying price"></td>
-        <td><input type="number" class="form-value" id="${uniqueId}-K" step="0.01" placeholder="Enter strike price"></td>
-        <td><input type="number" class="form-value" id="${uniqueId}-r" step="0.01" placeholder="Enter risk-free rate"></td>
-        <td><input type="number" class="form-value" id="${uniqueId}-T" step="0.01" placeholder="Enter time to expiration in days"></td>
-        <td><input type="number" class="form-value" id="${uniqueId}-sigma" step="0.01" placeholder="Enter volatility"></td>
-        <td><input type="number" class="form-value" id="${uniqueId}-premium" step="0.01" readonly></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-K" step="0.01" placeholder="Enter strike price" value="${K}"></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-T" step="0.01" placeholder="Enter time to expiration in days" value="${T}"></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-sigma" step="0.01" placeholder="Enter volatility" value="${sigma}"></td>
+        <td><input type="number" class="form-value" id="${uniqueId}-premium" step="0.01" value="${premium}" readonly></td>
+        <td><button class="delete-btn">X</button></td> <!-- X button added here -->
     `;
 
     newRow.innerHTML = cells;
     tbody.appendChild(newRow);
+
+    const optionActionSelect = document.getElementById(`${uniqueId}-option_action`);
+    optionActionSelect.value = option_action;
+
+    const optionTypeSelect = document.getElementById(`${uniqueId}-option_type`);
+    optionTypeSelect.value = option_type;
+
+    renumberRows()
 }
 
-addRow()
+
 document.getElementById('add-row-button').addEventListener('click', addRow);
 
 
 
 
 function extractTableData() {
+    const globalS = parseFloat(document.getElementById('global-S').value) || 0;
+    const globalR = parseFloat(document.getElementById('global-r').value) / 100 || 0;
+
     const rows = document.querySelectorAll('table tr'); // Select all rows in the table
     const data = [];
 
@@ -66,9 +76,9 @@ function extractTableData() {
                 option_action,
                 quantity: parseFloat(quantity) || 0,
                 option_type,
-                S: parseFloat(S) || 0,
+                S: globalS || 0,
                 K: parseFloat(K) || 0,
-                r: parseFloat(r) || 0,
+                r: globalR || 0,
                 T: parseFloat(T) || 0,
                 sigma: parseFloat(sigma) || 0,
                 premium: parseFloat(premium) || 0
@@ -103,76 +113,124 @@ function updateTable() {
             });
             
             
-
-            // Plot payoff data
-            
-            plotData(payoffs);
+            plotData(payoffs)
         })
         .catch(error => {
             console.error("Error fetching data:", error);
         });
+        
     }
 
 
-
 function plotData(data) {
-    // Clear previous plots
-    d3.select("#chart").selectAll("*").remove();
-
-    // Extract strategies and their corresponding data
     const strategies = Object.keys(data);
+    const series = strategies.map((strategy) => ({
+        name: strategy,
+        data: data[strategy], // Array of payoffs for this strategy
+    }));
+   
+       var options = {
+           chart: {
+               type: 'line', // Change to 'bar' or other types if needed
+               height: 600
+           },
+           series: series,
+           xaxis: {
+               type: 'numeric',
+               title: {
+                   text: 'Stock Price' // Change this if your x-axis represents something else
+               }
+           },
+           title: {
+               text: 'Option Payoff Strategies',
+               align: 'left'
+           },
+           colors: ['#FF4560', '#00E396', '#008FFB'], // Customize colors based on the number of series
+           legend: {
+               position: 'top'
+           }
+       };
+       
+       if (chart === null) {
+        chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+        console.log("plotting")
+    } else {
+        chart.updateSeries(series);
+        
+        console.log("updating")
+    }
 
- 
-
-    // Define margins and dimensions
-    const margin = { top: 20, right: 20, bottom: 30, left: 50 };
-    const width = 700 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
-
-    // Create scales
-    const xScale = d3.scaleLinear().range([0, width]);
-    const yScale = d3.scaleLinear().range([height, 0]);
-
-    // Append SVG element
-    const svg = d3.select("#chart")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    // Calculate the maximum length from the data arrays
-    const maxX = Math.max(...strategies.map(key => data[key].length - 1));
-
-    // Set domains based on data
-    xScale.domain([0, maxX]); // X-axis: from 0 to max index
-    yScale.domain([d3.min(Object.values(data).flat()), d3.max(Object.values(data).flat())]); // Y-axis: min and max of all values
-
-
-    // Define color scale
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
-
-    // Plot each strategy
-    strategies.forEach((key, i) => {
-        svg.append("path")
-            .datum(data[key])
-            .attr("fill", "none")
-            .attr("stroke", color(i))
-            .attr("stroke-width", 2)
-            .attr("d", d3.line()
-                .x((d, i) => xScale(i))
-                .y(d => yScale(d))
-            );
-    });
-
-    // Add X and Y axes
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(xScale).ticks(10));
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(d3.axisLeft(yScale).ticks(10));
 }
 
 document.getElementById('option-table').addEventListener('input', updateTable);
+document.getElementById('global-inputs').addEventListener('input', updateTable);
+
+
+
+
+
+function renumberRows() {
+    const rows = document.querySelectorAll('#option-table tbody tr');
+    rows.forEach((row, index) => {
+        const rowId = index + 1; // New row ID starts from 1
+
+        // Update IDs of all input/select elements in this row
+        const inputs = row.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+            // Replace the old row number with the new one
+            input.id = input.id.replace(/-\d+/, `-${rowId}`);
+        });
+        
+        // Update "X" button
+        const deleteBtn = row.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => deleteRow(row));
+    });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('delete-btn')) {
+        const row = event.target.closest('tr');
+        row.remove();
+        renumberRows()
+        updateTable()
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const strategyDropdown = document.getElementById('strategy-dropdown');
+    const addRowButton = document.getElementById('add-row-button');
+
+
+    function updateStrategy() {
+        const selectedStrategy = strategyDropdown.value;
+
+        if (selectedStrategy === "Sandbox") {
+            addRowButton.classList.remove("hidden");
+        }
+        else {
+            addRowButton.classList.add("hidden");
+            const data = {"strategy": selectedStrategy}
+            axios.post('/api/display-preset-strategy', data)
+            .then(response => {
+                
+                description = document.getElementById("description");
+                description.innerHTML = response.data.description;
+                const rows = response.data.options
+
+                rows.forEach( row => {
+                    console.log(row)
+                    addRow(option_action=row.option_action, quantity=row.quantity, option_type=row.option_type, K=row.K, T=row.T, sigma=row.sigma, premium="")
+                });
+                
+            })
+            
+        }
+    }
+    strategyDropdown.addEventListener('change', updateStrategy);
+
+    // Initial call to set the visibility based on the default dropdown value
+    updateStrategy();
+
+});

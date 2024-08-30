@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,8 +15,21 @@
     </nav>
 </head>
 <body>
+    <a href="/sandbox"> Sandbox</a>
+    <select id="strategy-dropdown">
+        <option value="Sandbox">Sandbox</option>
+        <option value="Bull Spread">Bull Spread</option>
+        <!-- Add more options here -->
+    </select>
+
     <h2>Options Details Table</h2>
+    <div id="global-inputs">
+        <label for="global-S">Underlying Price (S):</label>
+        <input type="number" id="global-S" step="0.01" value="100">
     
+        <label for="global-r">Risk-Free Rate (r) (%):</label>
+        <input type="number" id="global-r" step="0.01" value="5">
+    </div>
     
     
     <table id="option-table">
@@ -24,18 +38,14 @@
                 <th>Buy/Sell</th>
                 <th>Quantity</th>
                 <th>Call/Put/Stock</th>
-                <th>Underlying Price (K)</th>
-                <th>Strike Price (S)</th>
-                <th>Risk-free Rate (r)</th>
+                <th>Strike Price (K)</th>
                 <th>Time to Expiration (T)</th>
                 <th>Volatility (σ)</th>
                 <th>Option Premium</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
 
-            </tr>
             <!-- Additional rows will be added here -->
     
         </tbody>
@@ -43,9 +53,20 @@
     <button id="add-row-button">Add Row</button>
 
     <h1>Option Payoff Plot</h1>
-    <svg id="chart"></svg>
+    <!-- <svg id="chart"></svg> -->
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/static/js/strategy.js"></script>  
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+     
+
+
+    
+    <div id="chart">
+    </div>
+    <script src="/static/js/strategy.js"></script> 
+
+    <div id="description">
+        
+    </div>
 </body>
 </html>

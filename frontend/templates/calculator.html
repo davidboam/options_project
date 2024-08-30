@@ -27,7 +27,6 @@
         <input type="number" id="r" name="r" step="0.01" required><br>
         <label for="K">Volatility (%):</label>
         <input type="number" id="sigma" name="sigma" step="0.01" required><br>
-        <label for ="option_type">Option Type:</label>
      
         <button type="submit">Calculate Price</button>
     </form>
@@ -74,18 +73,5 @@
         </tbody>
     </table>
     <script src="/static/js/main.js"></script>
-
-    <div id="price">Waiting for price...</div>
-    
-    <script>
-        // Connect to Socket.IO server
-        var socket = io();
-        // Listen for 'price' event
-        socket.on('price', function(price) {
-            console.log('Price received:', price); // Debugging line
-            var priceDiv = document.getElementById('price');
-            priceDiv.innerHTML = '<p>' + price.toFixed(2) + '</p>';
-        });
-    </script>
 </body>
 </html>
